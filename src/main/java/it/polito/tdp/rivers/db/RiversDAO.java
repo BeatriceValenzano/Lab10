@@ -3,12 +3,14 @@ package it.polito.tdp.rivers.db;
 import java.util.LinkedList;
 import java.util.List;
 
+import it.polito.tdp.rivers.model.Flow;
 import it.polito.tdp.rivers.model.River;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 
 public class RiversDAO {
 
@@ -36,4 +38,31 @@ public class RiversDAO {
 
 		return rivers;
 	}
+	
+	public List<Flow> getInfo(River r) {
+		
+		String sql = "SELECT * "
+				+ "FROM flow "
+				+ "WHERE river = ? "
+				+ "ORDER BY day";
+		List<Flow> listaFlussi = new LinkedList<>();
+		try {
+			Connection conn = DBConnect.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			st.setInt(1, r.getId());
+			ResultSet rs = st.executeQuery();
+			
+			while(rs.next()) {
+				Flow f = new Flow(rs.getDate("day").toLocalDate(), rs.getDouble("flow"), r);
+				listaFlussi.add(f);
+			}
+			conn.close();
+			return listaFlussi;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	
 }
